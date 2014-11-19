@@ -74,8 +74,8 @@ def version_msg():
     u'--default-config', is_flag=True,
     help=u'Do not load a config file. Use the defaults instead'
 )
-def main(template, no_input, checkout, verbose, replay, overwrite_if_exists,
-         output_dir, config_file, default_config):
+def generate(template, no_input, checkout, verbose, replay,
+         overwrite_if_exists, output_dir, config_file, default_config):
     """Create a project from a Cookiecutter project template (TEMPLATE)."""
     if verbose:
         logging.basicConfig(
@@ -126,4 +126,20 @@ def main(template, no_input, checkout, verbose, replay, overwrite_if_exists,
 
 
 if __name__ == "__main__":
-    main()
+    generate()
+
+
+@click.command()
+@click.argument('template')
+@click.option(
+    '-c', '--checkout',
+    help='branch, tag or commit to checkout after git clone',
+)
+@click.option(
+    '--no-input', is_flag=True,
+    help='Do not prompt for parameters and only use cookiecutter.json '
+         'file content',
+)
+def update(template, checkout, no_input):
+    """Updates a rendered project"""
+    cookiecutter(template, checkout, no_input, overwrite=False)
