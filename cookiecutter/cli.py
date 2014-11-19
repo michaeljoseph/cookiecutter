@@ -36,11 +36,6 @@ def print_version(context, param, value):
 @click.command()
 @click.argument('template')
 @click.option(
-    '--no-input', is_flag=True,
-    help='Do not prompt for parameters and only use cookiecutter.json '
-         'file content',
-)
-@click.option(
     '-c', '--checkout',
     help='branch, tag or commit to checkout after git clone',
 )
@@ -50,10 +45,15 @@ def print_version(context, param, value):
     callback=print_version, expose_value=False, is_eager=True,
 )
 @click.option(
+    '--no-input', is_flag=True,
+    help='Do not prompt for parameters and only use cookiecutter.json '
+         'file content',
+)
+@click.option(
     '-v', '--verbose',
     is_flag=True, help='Print debug information', default=False
 )
-def main(template, no_input, checkout, verbose):
+def generate(template, checkout, no_input, verbose):
     """Create a project from a Cookiecutter project template (TEMPLATE)."""
     if verbose:
         logging.basicConfig(
@@ -66,5 +66,20 @@ def main(template, no_input, checkout, verbose):
             format='%(levelname)s: %(message)s',
             level=logging.INFO
         )
-
     cookiecutter(template, checkout, no_input)
+
+
+@click.command()
+@click.argument('template')
+@click.option(
+    '-c', '--checkout',
+    help='branch, tag or commit to checkout after git clone',
+)
+@click.option(
+    '--no-input', is_flag=True,
+    help='Do not prompt for parameters and only use cookiecutter.json '
+         'file content',
+)
+def update(template, checkout, no_input):
+    """Updates a rendered project"""
+    cookiecutter(template, checkout, no_input, overwrite=False)
