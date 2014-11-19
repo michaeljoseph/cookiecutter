@@ -9,11 +9,14 @@ Functions for generating a project from a project template.
 """
 from __future__ import unicode_literals
 from collections import OrderedDict
+import difflib
 import io
 import json
 import logging
 import os
 import shutil
+
+import click
 
 from jinja2 import FileSystemLoader, Template
 from jinja2.environment import Environment
@@ -69,7 +72,7 @@ def generate_context(context_file='cookiecutter.json', default_context=None,
     return context
 
 
-def generate_file(project_dir, infile, context, env):
+def generate_file(project_dir, infile, context, env, overwrite=True):
     """
     1. Render the filename of infile as the name of outfile.
     2. Deal with infile appropriately:
@@ -89,6 +92,7 @@ def generate_file(project_dir, infile, context, env):
         template dir.
     :param context: Dict for populating the cookiecutter's variables.
     :param env: Jinja2 template execution environment.
+    :param overwrite: Whether to overwrite, if the file already exists.
     """
 
     logging.debug('Generating file {0}'.format(infile))
@@ -119,7 +123,27 @@ def generate_file(project_dir, infile, context, env):
             raise
         rendered_file = tmpl.render(**context)
 
-        logging.debug('Writing {0}'.format(outfile))
+        if not overwrite and os.path.exists(outfile):
+
+            existing_file = click.open_file(outfile, encoding='utf-8').read()
+            # diff files
+            diff = difflib.unified_diff(
+                rendered_file.split('\n'),
+                existing_file.split('\n'),
+                )
+            difference = '\n'.join(list(diff))
+
+            if not difference:
+                click.secho('No difference, ignoring: {0}'.format(outfile), fg='yellow')
+                return
+            else:
+                click.echo(difference)
+                # prompt for action
+                if not click.confirm(click.style('Overwrite "{0}"?'.format(outfile), fg='red')):
+                    click.secho('Skipping {0}'.format(outfile), fg='yellow')
+                    return
+
+        click.secho('Writing {0}'.format(outfile), fg='green')
 
         with io.open(outfile, 'w', encoding='utf-8') as fh:
             fh.write(rendered_file)
@@ -157,13 +181,14 @@ def ensure_dir_is_templated(dirname):
         raise NonTemplatedInputDirException
 
 
-def generate_files(repo_dir, context=None, output_dir='.'):
+def generate_files(repo_dir, context=None, output_dir='.', overwrite=True):
     """
     Renders the templates and saves them to files.
 
     :param repo_dir: Project template input directory.
     :param context: Dict for populating the template's variables.
     :param output_dir: Where to output the generated project dir into.
+    :param overwrite: Whether to overwrite, if the file already exists.
     """
 
     template_dir = find_template(repo_dir)
@@ -201,7 +226,7 @@ def generate_files(repo_dir, context=None, output_dir='.'):
             for f in files:
                 infile = os.path.join(root, f)
                 logging.debug('f is {0}'.format(f))
-                generate_file(project_dir, infile, context, env)
+                generate_file(project_dir, infile, context, env, overwrite)
 
     # run post-gen hook from repo_dir
     with work_in(repo_dir):

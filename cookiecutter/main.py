@@ -52,7 +52,7 @@ def expand_abbreviations(template, config_dict):
     return template
 
 
-def cookiecutter(template, checkout=None, no_input=False, extra_context=None):
+def cookiecutter(template, checkout=None, no_input=False, extra_context=None, overwrite=True):
     """
     API equivalent to using Cookiecutter at the command line.
 
@@ -62,6 +62,8 @@ def cookiecutter(template, checkout=None, no_input=False, extra_context=None):
     :param no_input: Prompt the user at command line for manual configuration?
     :param extra_context: A dictionary of context that overrides default
         and user configuration.
+    :param overwrite: Whether to prompt for overwriting files that exist
+        and are different.
     """
 
     # Get user config from ~/.cookiecutterrc or equivalent
@@ -99,5 +101,6 @@ def cookiecutter(template, checkout=None, no_input=False, extra_context=None):
     # Create project from local context and project template.
     generate_files(
         repo_dir=repo_dir,
-        context=context
+        context=context,
+        overwrite=overwrite
     )
