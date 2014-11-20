@@ -75,7 +75,7 @@ def version_msg():
     help=u'Do not load a config file. Use the defaults instead'
 )
 def generate(template, no_input, checkout, verbose, replay,
-         overwrite_if_exists, output_dir, config_file, default_config):
+             overwrite_if_exists, output_dir, config_file, default_config):
     """Create a project from a Cookiecutter project template (TEMPLATE)."""
     if verbose:
         logging.basicConfig(
