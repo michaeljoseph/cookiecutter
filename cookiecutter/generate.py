@@ -140,7 +140,10 @@ def generate_file(project_dir, infile, context, env, overwrite=True):
                 )
                 return
             else:
-                click.secho('Target file different {0}'.format(outfile), fg='red')
+                click.secho(
+                    'Target file different {0}'.format(outfile),
+                    fg='red'
+                )
                 click.echo(difference)
                 # prompt for action
                 if not click.confirm(click.style(
