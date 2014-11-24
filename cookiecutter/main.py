@@ -45,9 +45,8 @@ def cookiecutter(template, checkout=None, no_input=False,
 
     repo_dir = resolve_template(template, tool_config, checkout, no_input)
 
-    context_file = os.path.join(repo_dir, 'cookiecutter.json')
     context = generate_context(
-        context_file=context_file,
+        context_file=os.path.join(repo_dir, 'cookiecutter.json'),
         default_context=tool_config['default_context'],
         extra_context=extra_context,
     )
