@@ -128,9 +128,9 @@ def generate_file(project_dir, infile, context, env, overwrite=True):
             existing_file = click.open_file(outfile, encoding='utf-8').read()
             # diff files
             diff = difflib.unified_diff(
-                rendered_file.split('\n'),
                 existing_file.split('\n'),
-                )
+                rendered_file.split('\n'),
+            )
             difference = '\n'.join(list(diff))
 
             if not difference:
