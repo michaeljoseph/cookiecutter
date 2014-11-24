@@ -134,12 +134,18 @@ def generate_file(project_dir, infile, context, env, overwrite=True):
             difference = '\n'.join(list(diff))
 
             if not difference:
-                click.secho('No difference, ignoring: {0}'.format(outfile), fg='yellow')
+                click.secho(
+                    'No difference, ignoring: {0}'.format(outfile),
+                    fg='yellow'
+                )
                 return
             else:
                 click.echo(difference)
                 # prompt for action
-                if not click.confirm(click.style('Overwrite "{0}"?'.format(outfile), fg='red')):
+                if not click.confirm(click.style(
+                    'Overwrite "{0}"?'.format(outfile),
+                    fg='red'
+                )):
                     click.secho('Skipping {0}'.format(outfile), fg='yellow')
                     return
 
