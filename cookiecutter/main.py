@@ -68,9 +68,9 @@ def cookiecutter(template, checkout=None, no_input=False, extra_context=None, ov
 
     # Get user config from ~/.cookiecutterrc or equivalent
     # If no config file, sensible defaults from config.DEFAULT_CONFIG are used
-    config_dict = get_user_config()
 
     template = expand_abbreviations(template, config_dict)
+    tool_config = get_user_config()
 
     # TODO: find a better way to tell if it's a repo URL
     if 'git@' in template or 'https://' in template:
@@ -90,7 +90,7 @@ def cookiecutter(template, checkout=None, no_input=False, extra_context=None, ov
 
     context = generate_context(
         context_file=context_file,
-        default_context=config_dict['default_context'],
+        default_context=tool_config['default_context'],
         extra_context=extra_context,
     )
 
