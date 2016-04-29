@@ -6,6 +6,7 @@ cookiecutter.exceptions
 
 All exceptions used in the Cookiecutter code base are defined here.
 """
+import json
 
 
 class CookiecutterException(Exception):
@@ -96,12 +97,13 @@ class UndefinedVariableInTemplate(CookiecutterException):
         self.message = message
         self.error = error
         self.context = context
+        self.context_json = json.dumps(context, indent=4, sort_keys=True)
 
     def __str__(self):
         return (
-            "{self.message}. "
-            "Error message: {self.error.message}. "
-            "Context: {self.context}"
+            "{self.message}.\n"
+            "Error message: {self.error.message}.\n"
+            "Context: {self.context_json}"
         ).format(**locals())
 
 
