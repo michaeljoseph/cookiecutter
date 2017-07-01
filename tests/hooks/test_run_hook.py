@@ -2,56 +2,8 @@
 
 import os
 import pytest
-import sys
-import textwrap
 
 from cookiecutter import exceptions, hooks
-
-
-@pytest.fixture
-def repo_dir_with_hooks(tmpdir):
-    repo_dir = tmpdir
-    hooks_dir = repo_dir.mkdir('hooks')
-    repo_dir.mkdir('input{{hooks}}')
-
-    pre_hook_content = textwrap.dedent(
-        u"""\
-        #!/usr/bin/env python
-        # -*- coding: utf-8 -*-
-        from __future__ import print_function
-
-        print('pre generation hook')
-        f = open('python_pre.txt', 'w')
-        f.close()
-        """
-    )
-    pre_gen_hook_file = hooks_dir / 'pre_gen_project.py'
-    pre_gen_hook_file.write_text(pre_hook_content, encoding='utf8')
-
-    if sys.platform.startswith('win'):
-        post_gen_hook_file = hooks_dir / 'post_gen_project.bat'
-        post_hook_content = textwrap.dedent(
-            u"""\
-            @echo off
-
-            echo post generation hook
-            echo. >shell_post.txt
-            """
-        )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
-    else:
-        post_gen_hook_file = hooks_dir / 'post_gen_project.sh'
-        post_hook_content = textwrap.dedent(
-            u"""\
-            #!/bin/bash
-
-            echo 'post generation hook';
-            touch 'shell_post.txt'
-            """
-        )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
-
-    return str(repo_dir)
 
 
 def test_run_hook(monkeypatch, repo_dir_with_hooks):
@@ -59,6 +11,7 @@ def test_run_hook(monkeypatch, repo_dir_with_hooks):
     directory.
     """
     tests_dir = os.path.join(repo_dir_with_hooks, 'input{{hooks}}')
+    os.mkdir(tests_dir)
     monkeypatch.chdir(repo_dir_with_hooks)
 
     hooks.run_hook('pre_gen_project', tests_dir, {})
@@ -74,6 +27,7 @@ def test_run_failing_hook(monkeypatch, repo_dir_with_hooks):
         'pre_gen_project.py'
     )
     tests_dir = os.path.join(repo_dir_with_hooks, 'input{{hooks}}')
+    os.mkdir(tests_dir)
 
     with open(hook_path, 'w') as f:
         f.write("#!/usr/bin/env python\n")
