@@ -6,12 +6,12 @@ import pytest
 from cookiecutter import exceptions, hooks
 
 
-def test_run_hook(monkeypatch, repo_dir_with_hooks):
+def test_run_hook(tmpdir, monkeypatch, repo_dir_with_hooks):
     """Execute hook from specified template in specified output
     directory.
     """
-    tests_dir = os.path.join(repo_dir_with_hooks, 'input{{hooks}}')
-    os.mkdir(tests_dir)
+    tests_dir = str(tmpdir)
+
     monkeypatch.chdir(repo_dir_with_hooks)
 
     hooks.run_hook('pre_gen_project', tests_dir, {})
@@ -21,13 +21,13 @@ def test_run_hook(monkeypatch, repo_dir_with_hooks):
     assert os.path.isfile(os.path.join(tests_dir, 'shell_post.txt'))
 
 
-def test_run_failing_hook(monkeypatch, repo_dir_with_hooks):
+def test_run_failing_hook(tmpdir, monkeypatch, repo_dir_with_hooks):
+    tests_dir = str(tmpdir)
+
     hook_path = os.path.join(
         os.path.join(repo_dir_with_hooks, 'hooks'),
         'pre_gen_project.py'
     )
-    tests_dir = os.path.join(repo_dir_with_hooks, 'input{{hooks}}')
-    os.mkdir(tests_dir)
 
     with open(hook_path, 'w') as f:
         f.write("#!/usr/bin/env python\n")
