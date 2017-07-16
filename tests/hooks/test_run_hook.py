@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+import io
 import os
 import pytest
 
@@ -29,7 +31,7 @@ def test_run_failing_hook(tmpdir, monkeypatch, repo_dir_with_hooks):
         'pre_gen_project.py'
     )
 
-    with open(hook_path, 'w') as f:
+    with io.open(hook_path, 'w', encoding='utf-8') as f:
         f.write("#!/usr/bin/env python\n")
         f.write("import sys; sys.exit(1)\n")
 
