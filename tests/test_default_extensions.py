@@ -9,7 +9,7 @@ import freezegun
 from cookiecutter.main import cookiecutter
 
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def freeze():
     freezer = freezegun.freeze_time("2015-12-09 23:33:01")
     freezer.start()

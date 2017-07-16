@@ -46,7 +46,7 @@ def test_hook_not_found(monkeypatch, repo_dir_with_hooks):
     assert hooks.find_hook('unknown_hook') is None
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def dir_with_hooks(tmpdir):
     """Yield a directory that contains hook backup files."""
 
