@@ -2,48 +2,26 @@
 
 import os
 import pytest
-import sys
-import textwrap
 
 from cookiecutter import hooks
 
 
 @pytest.fixture
-def hook_shell_script(tmpdir):
+def hook_shell_script(tmpdir, shell_hook_content):
     script_dir = tmpdir
 
-    if sys.platform.startswith('win'):
-        post_gen_hook_file = script_dir / 'post_gen_project.bat'
-        post_hook_content = textwrap.dedent(
-            u"""\
-            @echo off
+    hook_filename, hook_content = shell_hook_content('post_gen_project')
+    post_gen_hook_file = script_dir / hook_filename
+    post_gen_hook_file.write_text(hook_content, encoding='utf8')
 
-            echo post generation hook
-            echo. >shell_post.txt
-            """
-        )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
+    yield str(post_gen_hook_file)
 
-    else:
-        post_gen_hook_file = script_dir / 'post_gen_project.sh'
-        post_hook_content = textwrap.dedent(
-            u"""\
-            #!/bin/bash
-
-            echo 'post generation hook';
-            touch 'shell_post.txt'
-            """
-        )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
-
-    return str(post_gen_hook_file)
+    tmpdir.remove()
 
 
 def test_run_script(hook_shell_script):
     """Execute a hook script, independently of project generation"""
-    hooks.run_script(
-        os.path.join(hook_shell_script)
-    )
+    hooks.run_script(hook_shell_script)
     assert os.path.isfile('shell_post.txt')
 
     os.remove('shell_post.txt')

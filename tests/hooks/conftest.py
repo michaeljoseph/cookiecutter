@@ -5,8 +5,45 @@ import sys
 import textwrap
 
 
-@pytest.yield_fixture
-def repo_dir_with_hooks(tmpdir):
+@pytest.fixture
+def shell_hook_content():
+    def generate_hook(project_phase):
+        if sys.platform.startswith('win'):
+            hook_extension = 'bat'
+            hook_content = textwrap.dedent(
+                u"""\
+                @echo off
+
+                echo {} hook
+                echo. >shell_post.txt
+                """.format(
+                    project_phase.replace('_', ' '),
+                )
+            )
+        else:
+            hook_extension = 'sh'
+            hook_content = textwrap.dedent(
+                u"""\
+                #!/bin/bash
+
+                echo '{} hook';
+                touch 'shell_post.txt'
+                """.format(
+                    project_phase.replace('_', ' '),
+                )
+            )
+
+        hook_filename = '{}.{}'.format(
+            project_phase,
+            hook_extension
+        )
+        return hook_filename, hook_content
+
+    return generate_hook
+
+
+@pytest.fixture
+def repo_dir_with_hooks(tmpdir, shell_hook_content):
     """Yield a cookiecutter directory with hook files."""
 
     repo_dir = tmpdir
@@ -26,28 +63,9 @@ def repo_dir_with_hooks(tmpdir):
     pre_gen_hook_file = hooks_dir / 'pre_gen_project.py'
     pre_gen_hook_file.write_text(pre_hook_content, encoding='utf8')
 
-    if sys.platform.startswith('win'):
-        post_gen_hook_file = hooks_dir / 'post_gen_project.bat'
-        post_hook_content = textwrap.dedent(
-            u"""\
-            @echo off
-
-            echo post generation hook
-            echo. >shell_post.txt
-            """
-        )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
-    else:
-        post_gen_hook_file = hooks_dir / 'post_gen_project.sh'
-        post_hook_content = textwrap.dedent(
-            u"""\
-            #!/bin/bash
-
-            echo 'post generation hook';
-            touch 'shell_post.txt'
-            """
-        )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
+    hook_filename, hook_content = shell_hook_content('post_gen_project')
+    hook_filename = hooks_dir / hook_filename
+    hook_filename.write_text(hook_content, encoding='utf8')
 
     yield str(repo_dir)
 
