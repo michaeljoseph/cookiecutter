@@ -10,10 +10,9 @@ from cookiecutter import hooks
 
 @pytest.fixture
 def hook_shell_script_with_context(tmpdir):
-    script_dir = tmpdir
 
     if sys.platform.startswith('win'):
-        post_gen_hook_file = script_dir / 'post_gen_project.bat'
+        post_gen_hook_file = tmpdir / 'post_gen_project.bat'
         post_hook_content = textwrap.dedent(
             u"""\
             @echo off
@@ -22,9 +21,8 @@ def hook_shell_script_with_context(tmpdir):
             echo. >{{cookiecutter.file}}
             """
         )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
     else:
-        post_gen_hook_file = script_dir / 'post_gen_project.sh'
+        post_gen_hook_file = tmpdir / 'post_gen_project.sh'
         post_hook_content = textwrap.dedent(
             u"""\
             #!/bin/bash
@@ -33,9 +31,12 @@ def hook_shell_script_with_context(tmpdir):
             touch '{{cookiecutter.file}}'
             """
         )
-        post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
 
-    return str(post_gen_hook_file)
+    post_gen_hook_file.write_text(post_hook_content, encoding='utf8')
+
+    yield str(post_gen_hook_file)
+
+    tmpdir.remove()
 
 
 def test_run_script_with_context(hook_shell_script_with_context):
