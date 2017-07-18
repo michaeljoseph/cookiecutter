@@ -60,13 +60,11 @@ def repo_dir_with_hooks(tmpdir, shell_hook_content):
         f.close()
         """
     )
-    pre_gen_hook_file = hooks_dir / 'pre_gen_project.py'
-    pre_gen_hook_file.write_text(pre_hook_content, encoding='utf8')
+    pre_gen_file = hooks_dir / 'pre_gen_project.py'
+    pre_gen_file.write_text(pre_hook_content, encoding='utf8')
 
-    hook_filename, hook_content = shell_hook_content('post_gen_project')
-    hook_filename = hooks_dir / hook_filename
-    hook_filename.write_text(hook_content, encoding='utf8')
+    post_gen_file, post_hook_content = shell_hook_content('post_gen_project')
+    post_gen_file = hooks_dir / post_gen_file
+    post_gen_file.write_text(post_hook_content, encoding='utf8')
 
     yield str(repo_dir)
-
-    repo_dir.remove()
